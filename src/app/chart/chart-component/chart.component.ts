@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { ChartState } from '../reducers';
-import { employeesFetch2018 } from '../reducers/employee.actions';
-import { EmploeeService as EmployeeService } from '../../services/emploee.service';
-import { IEmployee } from '../model/chart.model';
-import { ChartType, Row } from 'angular-google-charts';
-import { Column } from 'angular-google-charts';
+import { employeesFetch2018, employeesFetch2019, employeesFetch2020 } from '../chart.actions';
+import { EmployeeService } from '../../services/emploee.service';
+import { chartName, MyChartDataSets } from '../model/chart.model';
+import { Label } from 'ng2-charts';
+import * as chartJs from 'chart.js';
+import { AppState } from 'src/app/reducers';
 
 @Component({
   selector: 'app-chart',
@@ -14,31 +13,59 @@ import { Column } from 'angular-google-charts';
   styleUrls: ['./chart.component.scss']
 })
 export class ChartComponent implements OnInit {
-  chartType = ChartType.Line;
-  chartData: Row[] = [[1,2,3,4], [1,2,3,4], [1,2,3,4], [1,2,3,4], [1,2,3,4], [1,2,3,4], [1,2,3,4], [1,2,3,4]];
-  chartOptions = { selectionMode: 'multiple',  tooltip: {trigger: 'selection'},   aggregationTarget: 'auto'} ;
 
-  chartData$: Observable<IEmployee[]> | undefined;
-
-  constructor(private store: Store<ChartState>, private employeeService: EmployeeService) { }
+  constructor(private store: Store<AppState>, private employeeService: EmployeeService) { }
 
   ngOnInit(): void {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+
     this.fetchChartData();
-    this.chartData$ = this.store
-      .pipe(select(
-        state => state["employeedData"]
-      )
+    this.store.pipe(select( state => state.chart.employeesResponce ))
+    .subscribe(
+      data => this.loadChart(data.employeesData, data.year)
     );
   }
 
   private fetchChartData() {
     this.employeeService.get2018data().subscribe(
-      employeeData => {
-        this.store.dispatch(employeesFetch2018({employeeData}));
-        console.log(employeeData);
+      employeeResponce => {
+        console.log(employeeResponce, 'employeeResponce')
+        this.store.dispatch(employeesFetch2018({employeeResponce: employeeResponce}));
       }
-    )
+    );
+    this.employeeService.get2019data().subscribe(
+      employeeResponce => {
+        this.store.dispatch(employeesFetch2019({employeeResponce: employeeResponce}));
+      }
+    );
+    this.employeeService.get2020data().subscribe(
+      employeeResponce => {
+        this.store.dispatch(employeesFetch2020({employeeResponce: employeeResponce}));
+      }
+    );
+  };
+
+  private loadChart(chartData: number[], chartName: chartName) {
+    if (!chartData || chartData.length == 0 || !chartName) {
+      return;
+    }
+    let chartLine = this.lineChartData.find(el => el.label === chartName);
+    const tempChartLine: MyChartDataSets =  {data: chartData, label: chartName};
+    if(!chartLine)
+    {
+      this.lineChartData = [...this.lineChartData,   tempChartLine];
+    } else {
+      chartLine = tempChartLine;
+    }
   }
 
+  //Chart configuration//
+  public width: number = 0;
+  public height: number = 0;
+  public lineChartData: MyChartDataSets[] = [];
+  public readonly lineChartLabels: Label[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  public readonly lineChartLegend = true;
+  public readonly lineChartType: chartJs.ChartType = 'line';
 
 }

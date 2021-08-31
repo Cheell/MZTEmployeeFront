@@ -1,4 +1,3 @@
-import { state } from '@angular/animations';
 import {
   ActionReducer,
   ActionReducerMap,
@@ -9,23 +8,33 @@ import {
   on,
   State
 } from '@ngrx/store';
-import { IEmployee } from '../model/chart.model';
-import { EmployeeActions } from './action-types';
+import { IEmployeeResponce } from '../model/chart.model';
+import { EmployeeActions } from '../action-types';
 
 
 export interface ChartState {
-  employeedData: IEmployee[]
+  employeesResponce: IEmployeeResponce
 }
 
 export  const initialChartState: ChartState = {
-  employeedData: []
+  employeesResponce: { employeesData: [], year: '' }
 }
 
 export const chartReducer = createReducer(
   initialChartState,
   on(EmployeeActions.employeesFetch2018, (state, action) => {
     return {
-      employeedData: action.employeeData
+      employeesResponce: action.employeeResponce
     }
-  })
+  }),
+  on(EmployeeActions.employeesFetch2019, (state, action) => {
+    return {
+      employeesResponce: action.employeeResponce
+    }
+  }),
+  on(EmployeeActions.employeesFetch2020, (state, action) => {
+    return {
+      employeesResponce: action.employeeResponce
+    }
+  }),
 );

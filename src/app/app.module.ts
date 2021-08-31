@@ -9,6 +9,7 @@ import { ChartModule } from './chart/chart.module';
 import { StoreModule } from '@ngrx/store';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HeaderInterceptor } from './interceptors/header.interceptor';
+import { reducers, metaReducers } from './reducers';
 @NgModule({
   declarations: [
     AppComponent,
@@ -17,7 +18,7 @@ import { HeaderInterceptor } from './interceptors/header.interceptor';
     ChartModule,
     BrowserModule,
     HttpClientModule,
-    StoreModule.forRoot({}),
+    StoreModule.forRoot(reducers, {metaReducers}),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     !environment.production ? StoreDevtoolsModule.instrument() : []
   ],
@@ -31,3 +32,4 @@ import { HeaderInterceptor } from './interceptors/header.interceptor';
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+

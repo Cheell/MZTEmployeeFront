@@ -1,8 +1,8 @@
-<p>chart works! {{chartData$ | async}}</p>
-<google-chart
-  title="Employees / Months"
-  [type]="chartType"
-  [data]="chartData"
-  [options]="chartOptions"
-></google-chart>
-
+<div *ngIf="lineChartData.length > 0" class="chart">
+  <canvas baseChart [width]="width" [height]="height"
+    [datasets]="lineChartData"
+    [labels]="lineChartLabels"
+    [legend]="lineChartLegend"
+    [chartType]="lineChartType">
+  </canvas>
+</div>
